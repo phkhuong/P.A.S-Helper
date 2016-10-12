@@ -1,11 +1,16 @@
+/*
+P.A.S Helper v1.01
+What's new:
+- Improved phonenumber function's chance of find company email.
+*/
+
 function phonenumber(company,city) {
-  //var sheet = SpreadsheetApp.getActiveSheet();
-  //var data = sheet.getDataRange().getValues();
-  //var company = data[0][0];
-  //var city = data[0][1];
+  if(company === "" || city === "")
+    return "";
+  else{
   var company_array = company.split(" ");
   var city_array = city.split(" ");
-  var url ="https://www.google.com.vn/search?q=";
+  var url ="https://www.google.com/search?q=";
   for(i=0, len = company_array.length; i< len; i++)
     url = url + company_array[i] + "+";
   for(i=0, len = city_array.length; i< len; i++){
@@ -13,16 +18,24 @@ function phonenumber(company,city) {
       url = url + city_array[i] + "+";
     else
       url = url + city_array[i] +"+phone+number";}
- var response = UrlFetchApp.fetch(url);
- var string = response.getContentText();
-  if(string.search('<span class="_m3b">') === -1)
+  var response = UrlFetchApp.fetch(url);
+  Utilities.sleep(1000);
+  var string = response.getContentText();
+  if(string.search('<span class="_m3b">') !== -1){
+    var a = string.indexOf('<span class="_m3b">');
+    var cut = string.substring(a, string.length);
+    var output = cut.substring(19,cut.indexOf("</span>"));
+  }
+  else if(string.search('</span> &middot; ') !== -1){
+    var a = string.indexOf('</span> &middot; ');
+    var cut = string.substring(a, string.length);
+    var output = cut.substring(16,cut.indexOf("</div>"));
+  }
+  else
     return "";
- var a = string.indexOf('<span class="_m3b">');
- var cut = string.substring(a, string.length);
-  var output = cut.substring(19,cut.indexOf("</span>"));
   return output;
-  //sheet.appendRow([final]);
   //Logger.log(output);
+  }
 }
 
 
@@ -30,7 +43,8 @@ function phonenumber(company,city) {
 function onOpen() {
   var spreadsheet = SpreadsheetApp.getActive();
   var menuItems = [
-    {name: 'Report Helper', functionName: 'report'}
+    {name: 'Report Helper', functionName: 'report'},
+    {name: 'Duplicate Detect', functionName: 'duplicate_finder'}
   ];
   spreadsheet.addMenu('PAS Helper', menuItems);
 }
@@ -43,6 +57,7 @@ function report() {
   var lrow = activesheet.getLastRow();
   var total = lrow - 1;
   var duplicate = 0;
+  var dupnm = 0;
   var nomail = 0;
   var dsource = 0;
   var workcity = 0;
@@ -91,10 +106,12 @@ function report() {
     else if(data[0][i] === "Home Email"){
       for(j=1; j<lrow; j++){
         if(data[j][i] === "" && data[j][i+1] === ""){
+          nomail++
           for(l=0; l<len; l++){
             if( l===0 || data[0][l] === "NOTE" || data[0][l] === "Note" || data[0][l] === "note"){
-              if(data[j][l].indexOf("Dup") === -1 || data[j][l].indexOf("dup") === -1 || data[j][l].indexOf("Duplicate") === -1 || data[j][l].indexOf("duplicate") === -1 )
-                nomail++;
+              if(data[j][l].indexOf("Dup") !== -1 || data[j][l].indexOf("dup") !== -1 || data[j][l].indexOf("Duplicate") !== -1 || data[j][l].indexOf("duplicate") !== -1 ){
+                dupnm++;
+              }
             }
           }
         }
@@ -122,45 +139,83 @@ function report() {
       }
   }
 
-  var archor = activesheet.getLastColumn() +2;
-  activesheet.getRange(4, archor).setValue(spreadsheetname).setBorder(true, true, true, true, true, true);
-  activesheet.getRange(4, archor+1).setBorder(true, true, true, true, true, true);
-  activesheet.getRange(4, archor+2).setBorder(true, true, true, true, true, true);
-  activesheet.getRange(4, archor+3).setBorder(true, true, true, true, true, true);
-  activesheet.getRange(4, archor+4).setBorder(true, true, true, true, true, true);
-  activesheet.getRange(4, archor+5).setValue(total).setBorder(true, true, true, true, true, true);
-  activesheet.getRange(4, archor+6).setValue(duplicate).setBorder(true, true, true, true, true, true);
-  activesheet.getRange(4, archor+7).setValue(total-nomail).setBorder(true, true, true, true, true, true);
-  activesheet.getRange(4, archor+8).setValue(nomail).setBorder(true, true, true, true, true, true);
-  activesheet.getRange(4, archor+9).setValue(phonenumber).setBorder(true, true, true, true, true, true);
-  activesheet.getRange(4, archor+10).setValue(dsource).setBorder(true, true, true, true, true, true);
-  activesheet.getRange(4, archor+11).setValue(workcity).setBorder(true, true, true, true, true, true);
-  activesheet.getRange(4, archor+12).setValue(workstate).setBorder(true, true, true, true, true, true);
-  activesheet.getRange(4, archor+13).setValue(facebookurl).setBorder(true, true, true, true, true, true);
-  activesheet.getRange(4, archor+14).setValue(twitterurl).setBorder(true, true, true, true, true, true);
-  activesheet.getRange(4, archor+15).setValue(github).setBorder(true, true, true, true, true, true);
-  activesheet.getRange(4, archor+16).setValue(facebookemail).setBorder(true, true, true, true, true, true);
+  var anchor = activesheet.getLastColumn() +2;
+  activesheet.getRange(4, anchor).setValue(spreadsheetname).setBorder(true, true, true, true, true, true);
+  activesheet.getRange(4, anchor+1).setValue("").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(4, anchor+2).setValue("").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(4, anchor+3).setValue("").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(4, anchor+4).setValue("").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(4, anchor+5).setValue(total).setBorder(true, true, true, true, true, true);
+  activesheet.getRange(4, anchor+6).setValue(duplicate).setBorder(true, true, true, true, true, true);
+  activesheet.getRange(4, anchor+7).setValue(total-nomail-(duplicate-dupnm)).setBorder(true, true, true, true, true, true);
+  activesheet.getRange(4, anchor+8).setValue(nomail - dupnm).setBorder(true, true, true, true, true, true);
+  activesheet.getRange(4, anchor+9).setValue(phonenumber).setBorder(true, true, true, true, true, true);
+  activesheet.getRange(4, anchor+10).setValue(dsource).setBorder(true, true, true, true, true, true);
+  activesheet.getRange(4, anchor+11).setValue(workcity).setBorder(true, true, true, true, true, true);
+  activesheet.getRange(4, anchor+12).setValue(workstate).setBorder(true, true, true, true, true, true);
+  activesheet.getRange(4, anchor+13).setValue(facebookurl).setBorder(true, true, true, true, true, true);
+  activesheet.getRange(4, anchor+14).setValue(twitterurl).setBorder(true, true, true, true, true, true);
+  activesheet.getRange(4, anchor+15).setValue(github).setBorder(true, true, true, true, true, true);
+  activesheet.getRange(4, anchor+16).setValue(facebookemail).setBorder(true, true, true, true, true, true);
   
-  activesheet.getRange(2,archor,2).merge().setValue("List name").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(2,archor+1,2).merge().setValue("Sent by? \(Sourcer name\)").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(2,archor+2,2).merge().setValue("Sent to? N or T or WE name").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(2,archor+3,2).merge().setValue("QC? x").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(2,archor+4,2).merge().setValue("Format check").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(2,archor+5,2).merge().setValue("Total").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(2,archor+6,2).merge().setValue("Duplicate").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(2,archor+7,1,2).merge().setValue("Email").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(3,archor+7).setValue("Yes").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(3,archor+8).setValue("No").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(2,archor+9,2).merge().setValue("Phone").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(2,archor+10,2).merge().setValue("Dsource").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(2,archor+11,2).merge().setValue("Work City").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(2,archor+12,2).merge().setValue("Work State").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(2,archor+13,2).merge().setValue("FB URL").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(2,archor+14,2).merge().setValue("Twitter URL").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(2,archor+15,2).merge().setValue("Github URL").setBackground("#c9daf8").setHorizontalAlignment("center");
-  activesheet.getRange(2,archor+16,2).merge().setValue("FB Email").setBackground("#c9daf8").setHorizontalAlignment("center");
+  activesheet.getRange(2,anchor,2).merge().setValue("List name").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(2,anchor+1,2).merge().setValue("Sent by? \(Sourcer name\)").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(2,anchor+2,2).merge().setValue("Sent to? N or T or WE name").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(2,anchor+3,2).merge().setValue("QC? x").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(2,anchor+4,2).merge().setValue("Format check").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(2,anchor+5,2).merge().setValue("Total").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(2,anchor+6,2).merge().setValue("Duplicate").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(2,anchor+7,1,2).merge().setValue("Email").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(3,anchor+7).setValue("Yes").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(3,anchor+8).setValue("No").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(2,anchor+9,2).merge().setValue("Phone").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(2,anchor+10,2).merge().setValue("Dsource").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(2,anchor+11,2).merge().setValue("Work City").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(2,anchor+12,2).merge().setValue("Work State").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(2,anchor+13,2).merge().setValue("FB URL").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(2,anchor+14,2).merge().setValue("Twitter URL").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(2,anchor+15,2).merge().setValue("Github URL").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
+  activesheet.getRange(2,anchor+16,2).merge().setValue("FB Email").setBackground("#c9daf8").setHorizontalAlignment("center").setBorder(true, true, true, true, true, true);
   
-  activesheet.getRange(2,archor,3,1).copyTo(activesheet.getRange(6, archor));
-  activesheet.getRange(2,archor+5,3,13).copyTo(activesheet.getRange(6, archor+1));
+  activesheet.getRange(2,anchor,3,1).copyTo(activesheet.getRange(6, anchor));
+  activesheet.getRange(2,anchor+5,3,13).copyTo(activesheet.getRange(6, anchor+1));
 
+}
+
+function duplicate_finder(){
+  var activespreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var activesheet = SpreadsheetApp.getActiveSheet();
+  var lastrow = activesheet.getLastRow();
+  var lastcolumn = activesheet.getLastColumn();
+    // Prompt the user for a row number.
+  var selectedcolumn = Browser.inputBox('Duplicate Detect','Please enter the column number to use:',
+      Browser.Buttons.OK_CANCEL);
+  if (selectedcolumn == 'cancel') {
+    return;
+  }
+  var columnNumber = Number(selectedcolumn);
+  if (isNaN(columnNumber) || columnNumber < 1 ||
+      columnNumber > lastcolumn) {
+    Browser.msgBox('Error',
+        Utilities.formatString('Column "%s" is not valid.', selectedcolumn),
+        Browser.Buttons.OK);
+    return;
+  }
+  var data = activesheet.getRange(2, columnNumber, lastrow).getValues();
+  var formula = activesheet.getRange(2, columnNumber, lastrow).getFormulas();
+  Logger.log(formula[2]);
+  for(i=0;i<lastrow-1;i++){
+    for(j=i+1;j<lastrow;j++){
+      if(String(data[i]) == String(data[j])){
+        if(String(formula[i]) == String(formula[j])){
+          activesheet.getRange(i+2, columnNumber).setBackground("Orange");
+          activesheet.getRange(j+2, columnNumber).setBackground("Orange");
+        }
+        else{
+          activesheet.getRange(i+2, columnNumber).setBackground("Yellow");
+          activesheet.getRange(j+2, columnNumber).setBackground("Yellow");
+        }       
+      }
+    }
+  }
 }
