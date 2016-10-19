@@ -1,7 +1,7 @@
 /*
-P.A.S Helper v1.01
+P.A.S Helper v1.02
 What's new:
-- Improved phonenumber function's chance of find company email.
+- Improved proficiency of phonenumber function
 */
 
 function phonenumber(company,city) {
@@ -26,6 +26,11 @@ function phonenumber(company,city) {
     var cut = string.substring(a, string.length);
     var output = cut.substring(19,cut.indexOf("</span>"));
   }
+  else if(string.search('<span data-dtype="d3ph">') !== -1){
+    var a = string.indexOf('<span data-dtype="d3ph">');
+    var cut = string.substring(a, string.length);
+    var output = cut.substring(29,cut.indexOf("</span>"));
+  }
   else if(string.search('</span> &middot; ') !== -1){
     var a = string.indexOf('</span> &middot; ');
     var cut = string.substring(a, string.length);
@@ -38,13 +43,12 @@ function phonenumber(company,city) {
   }
 }
 
-
-
 function onOpen() {
   var spreadsheet = SpreadsheetApp.getActive();
   var menuItems = [
-    {name: 'Report Helper', functionName: 'report'},
-    {name: 'Duplicate Detect', functionName: 'duplicate_finder'}
+    {name: 'Create Working Sheet', functionName: 'create_working_sheet'},
+    {name: 'Duplicate Finder', functionName: 'duplicate_finder'},
+    {name: 'Report Helper', functionName: 'report'}
   ];
   spreadsheet.addMenu('PAS Helper', menuItems);
 }
@@ -68,47 +72,47 @@ function report() {
   var github = 0;
   var facebookemail = 0;
   for(i=0, len = activesheet.getLastColumn(); i<len; i++){
-    if(data[0][i] === "Tag \(dsource\)" || data[0][i] === "Tag dsource" || data[0][i] === "Tag Dsource" || data[0][i] === "Tag \(Dsource\)" || data[0][i] === "Tag \(Female\)" || data[0][i] === "Tag Female" )
+    if(data[0][i].toLowerCase() === "tag \(dsource\)" || data[0][i].toLowerCase() === "tag dsource" || data[0][i].toLowerCase() === "tag \(female\)" || data[0][i].toLowerCase() === "tag female" || data[0][i].indexOf("Dsource") !== -1 || data[0][i].indexOf("dsource") !== -1 || data[0][i].indexOf("DSOURCE") !== -1 )
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           dsource++;
       }
-    else if(data[0][i] === "Facebook Profile")
+    else if(data[0][i].toLowerCase() === "facebook profile")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           facebookurl++;
       }
-    else if(data[0][i] === "Twitter URL")
+    else if(data[0][i].toLowerCase() === "twitter url")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           twitterurl++;
       }
-    else if(data[0][i] === "Github Profile")
+    else if(data[0][i].toLowerCase() === "github profile")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           github++;
       }
-    else if(data[0][i] === "Work City/Town")
+    else if(data[0][i].toLowerCase() === "work city/town")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           workcity++;
       }
-    else if(data[0][i] === "Work State")
+    else if(data[0][i].toLowerCase() === "work state")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           workstate++;
       }
-    else if(data[0][i] === "Facebook Email")
+    else if(data[0][i].toLowerCase() === "facebook email")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           facebookemail++;
       }
-    else if(data[0][i] === "Home Email"){
+    else if(data[0][i].toLowerCase() === "home email"){
       for(j=1; j<lrow; j++){
         if(data[j][i] === "" && data[j][i+1] === ""){
           nomail++
           for(l=0; l<len; l++){
-            if( l===0 || data[0][l] === "NOTE" || data[0][l] === "Note" || data[0][l] === "note"){
+            if( l===0 || data[0][l].toLowerCase() === "note"){
               if(data[j][l].indexOf("Dup") !== -1 || data[j][l].indexOf("dup") !== -1 || data[j][l].indexOf("Duplicate") !== -1 || data[j][l].indexOf("duplicate") !== -1 ){
                 dupnm++;
               }
@@ -117,22 +121,22 @@ function report() {
         }
       }
     }
-    else if(data[0][i] === "Mobile Phone")
+    else if(data[0][i].toLowerCase() === "mobile phone")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           phonenumber++;
       }
-    else if(data[0][i] === "Home Phone")
+    else if(data[0][i].toLowerCase() === "home phone")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           phonenumber++;
       }
-    else if(data[0][i] === "Work Phone")
+    else if(data[0][i].toLowerCase() === "work phone")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           phonenumber++;
       }
-    else if( i===0 || data[0][i] === "NOTE" || data[0][i] === "Note" || data[0][i] === "note")
+    else if( i===0 || data[0][i].toLowerCase() === "note")
       for(j=1; j<lrow; j++){
         if(data[j][i].indexOf("Dup") !== -1 || data[j][i].indexOf("dup") !== -1 || data[j][i].indexOf("Duplicate") !== -1 || data[j][i].indexOf("duplicate") !== -1 )
           duplicate++;
@@ -218,4 +222,53 @@ function duplicate_finder(){
       }
     }
   }
+}
+
+function create_working_sheet(){
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  ss.insertSheet();
+  var working_sheet = SpreadsheetApp.getActiveSheet()
+  //ss.setActiveSheet(ss.getSheets()[0]);
+  var distributed_sheet = ss.getSheets()[0];
+  var clen = distributed_sheet.getLastColumn();
+  var rlen = distributed_sheet.getLastRow();
+  Logger.log(ws_rlen);
+  var first_row = distributed_sheet.getRange(1, 1, 1, clen).getValues();
+  var values = [
+    ['Home Email', 'Work Email', 'Additional Email', 'Mobile Phone', 'Home Phone', 'Work Phone','Facebook Profile', 'Twitter URL', 'Github Profile']
+  ];
+  //Logger.log(first_row);
+  var colnum = 0;
+  for(i=0; i<clen; i++){
+    if(first_row[0][i].toLowerCase() === "full name/link")
+      distributed_sheet.getRange(1, i+1, rlen).copyTo(working_sheet.getRange("C1"));
+    else if(first_row[0][i].toLowerCase() === "company")
+      distributed_sheet.getRange(1, i+1, rlen).copyTo(working_sheet.getRange("D1"), {contentsOnly:true});
+    else if(first_row[0][i].toLowerCase() === "position title")
+      distributed_sheet.getRange(1, i+1, rlen).copyTo(working_sheet.getRange("E1"), {contentsOnly:true});
+    else if(first_row[0][i].toLowerCase() === "work city/town"){
+      distributed_sheet.getRange(1, i+1, rlen).copyTo(working_sheet.getRange("F1"), {contentsOnly:true});
+      var work_city = distributed_sheet.getRange(2, i+1).getValues();
+      //Logger.log(work_city);
+      if(work_city[0][0] === ""){
+        working_sheet.getRange('G1').setValue('Work State').setFontWeight("bold").setBackground("#c9daf8");
+        colnum++
+      }
+    }
+  }
+  
+  var ws_rlen = working_sheet.getLastRow();
+  
+  working_sheet.getRange('A1').setValue('NOTE').setFontWeight("bold").setFontSize(14).setBackground("#c9daf8");
+  working_sheet.getRange('B1').setValue('Tag (dsource)').setFontWeight("bold").setFontSize(14).setBackground("#c9daf8");
+  working_sheet.getRange('C1').setFontWeight("bold").setFontSize(14).setBackground("#c9daf8");
+  working_sheet.getRange('D1').setFontWeight("bold").setFontSize(14).setBackground("#c9daf8");
+  working_sheet.getRange('E1').setFontWeight("bold").setFontSize(14).setBackground("#c9daf8");
+  working_sheet.getRange('F1').setFontWeight("bold").setFontSize(14).setBackground("#c9daf8");
+  working_sheet.getRange(1, colnum+7,1,9).setValues(values).setFontWeight("bold").setFontSize(14).setBackground("#c9daf8");
+  working_sheet.getRange(2, colnum+13,ws_rlen-1,3).setBackground("#ead1dc");
+  working_sheet.getRange(2, 3,ws_rlen-1,1).setBackground("white");
+  working_sheet.setFrozenRows(1);
+  working_sheet.setFrozenColumns(5);
+
 }
