@@ -17,9 +17,15 @@ CÁC BAN LƯU Ý:
 
 
 
-P.A.S Helper v1.02d
+P.A.S Helper v1.02e
 Contact: khuong.pham@vsource.io
 
+v1.02e
+------------------------------------------------
+What's new:
+- Fix lỗi toLowerCase() của Report Helper khi nhập số vào header và cột Note
+
+v1.02d
 ------------------------------------------------
 What's new:
 - Create working sheet sẽ tự động kết hợp First Name, Last Name và LinkedIn Profile để tạo cột Full Name/Link nếu Sheet gốc không có cột đấy (tốc độ thực thi của script sẽ chậm hơn khá nhiều nếu rơi vào trường hợp naỳ).
@@ -128,56 +134,56 @@ function report() {
 
   
   for(i=0, len = activesheet.getLastColumn(); i<len; i++){
-    if(data[0][i].toLowerCase() === "tag (dsource)" || data[0][i].toLowerCase() === "tag dsource" || data[0][i].toLowerCase() === "tag \(female\)" || data[0][i].toLowerCase() === "tag female" || data[0][i].indexOf("Dsource") !== -1 || data[0][i].indexOf("dsource") !== -1 || data[0][i].indexOf("DSOURCE") !== -1 || data[0][i].indexOf("Tag") !== -1)
+    if(data[0][i].toString().toLowerCase().indexOf("dsource") !== -1 || data[0][i].toString().toLowerCase().indexOf("female") !== -1 || data[0][i].toString().toLowerCase().indexOf("tag") !== -1)
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           dsource++;
       }
-    else if(data[0][i].toLowerCase().indexOf("name") !== -1)
+    else if(data[0][i].toString().toLowerCase().indexOf("name") !== -1)
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           total++;
     }
-    else if(data[0][i].toLowerCase() === "facebook profile")
+    else if(data[0][i].toString().toLowerCase() === "facebook profile")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           facebookurl++;
       }
-    else if(data[0][i].toLowerCase() === "twitter url")
+    else if(data[0][i].toString().toLowerCase() === "twitter url")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           twitterurl++;
       }
-    else if(data[0][i].toLowerCase() === "github profile")
+    else if(data[0][i].toString().toLowerCase() === "github profile")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           github++;
       }
-    else if(data[0][i].toLowerCase() === "work city/town" || data[0][i].toLowerCase() === "work city")
+    else if(data[0][i].toString().toLowerCase() === "work city/town" || data[0][i].toString().toLowerCase() === "work city")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           workcity++;
       }
-    else if(data[0][i].toLowerCase() === "work city/town.")
+    else if(data[0][i].toString().toLowerCase() === "work city/town.")
       workcity = 0;
-    else if(data[0][i].toLowerCase() === "work state")
+    else if(data[0][i].toString().toLowerCase() === "work state")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           workstate++;
       }
-    else if(data[0][i].toLowerCase() === "facebook email")
+    else if(data[0][i].toString().toLowerCase() === "facebook email")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           facebookemail++;
       }
-    else if(data[0][i].toLowerCase() === "home email"){
+    else if(data[0][i].toString().toLowerCase() === "home email"){
       if(total>lrow-1){
         for(j=1; j<lrow; j++){
           if(data[j][i] === "" && data[j][i+1] === "" && data[j][i+2] === ""){
             nomail++
               for(l=0; l<len; l++){
-                if(l===0 || data[0][l].toLowerCase() === "note"){
-                  if(data[j][l].toLowerCase().indexOf("dup") !== -1  || data[j][l].toLowerCase().indexOf("duplicate") !== -1){
+                if(l===0 || data[0][l].toString().toLowerCase() === "note"){
+                  if(data[j][l].toString().toLowerCase().indexOf("dup") !== -1  || data[j][l].toString().toLowerCase().indexOf("duplicate") !== -1){
                     dupnm++;
                   }
                 }
@@ -190,8 +196,8 @@ function report() {
         if(data[j][i] === "" && data[j][i+1] === "" && data[j][i+2] === ""){
           nomail++
           for(l=0; l<len; l++){
-            if(data[0][l].toLowerCase() === "note"){
-              if(data[j][l].toLowerCase().indexOf("dup") !== -1  || data[j][l].toLowerCase().indexOf("duplicate") !== -1){
+            if(data[0][l].toString().toLowerCase() === "note"){
+              if(data[j][l].toString().toLowerCase().indexOf("dup") !== -1  || data[j][l].toString().toLowerCase().indexOf("duplicate") !== -1){
                 dupnm++;
               }
               }
@@ -200,24 +206,24 @@ function report() {
         }
       }
     }
-    /*else if(data[0][i].toLowerCase() === "mobile phone")
+    /*else if(data[0][i].toString().toLowerCase() === "mobile phone")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           phonenumber++;
       }
-    else if(data[0][i].toLowerCase() === "home phone")
+    else if(data[0][i].toString().toLowerCase() === "home phone")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "")
           phonenumber++;
       }*/
-    else if(data[0][i].toLowerCase() === "work phone")
+    else if(data[0][i].toString().toLowerCase() === "work phone")
       for(j=1; j<lrow; j++){
         if(data[j][i] !== "" || data[j][i-1] !== "" || data [j][i-2] !== "")
           phonenumber++;
       }
-    else if( i===0 || data[0][i].toLowerCase() === "note")
+    else if( i===0 || data[0][i].toString().toLowerCase() === "note")
       for(j=1; j<lrow; j++){
-        if(data[j][i].toLowerCase().indexOf("dup") !== -1  || data[j][i].toLowerCase().indexOf("duplicate") !== -1)
+        if(data[j][i].toString().toLowerCase().indexOf("dup") !== -1  || data[j][i].toString().toLowerCase().indexOf("duplicate") !== -1)
           duplicate++;
       }
   }
@@ -276,7 +282,7 @@ function duplicate_finder(){
   var lastrow = activesheet.getLastRow();
   var lastcolumn = activesheet.getLastColumn();
     // Prompt the user for a row number.
-  var selectedcolumn = Browser.inputBox('Duplicate Detect','Please enter the column number to use:',
+  var selectedcolumn = Browser.inputBox('Duplicate Detect','Số thứ tự cột cần dò trùng:',
       Browser.Buttons.OK_CANCEL);
   if (selectedcolumn == 'cancel') {
     return;
@@ -339,15 +345,15 @@ function create_working_sheet(){
   var fnchecker = false;
   var lpchecker = false;
   for(i=0; i<clen; i++){
-    if(first_row[0][i].toLowerCase() === "full name/link"){
+    if(first_row[0][i].toString().toLowerCase() === "full name/link"){
       distributed_sheet.getRange(frow, i+1, rlen-frow+1).copyTo(working_sheet.getRange("C1"));
       fnchecker = true; 
     }
-    else if(first_row[0][i].toLowerCase() === "company")
+    else if(first_row[0][i].toString().toLowerCase() === "company")
       distributed_sheet.getRange(frow, i+1, rlen-frow+1).copyTo(working_sheet.getRange("D1"), {contentsOnly:true});
-    else if(first_row[0][i].toLowerCase() === "position title")
+    else if(first_row[0][i].toString().toLowerCase() === "position title")
       distributed_sheet.getRange(frow, i+1, rlen-frow+1).copyTo(working_sheet.getRange("E1"), {contentsOnly:true});
-    else if(first_row[0][i].toLowerCase() === "work city/town"){
+    else if(first_row[0][i].toString().toLowerCase() === "work city/town"){
       distributed_sheet.getRange(frow, i+1, rlen-frow+1).copyTo(working_sheet.getRange("F1"), {contentsOnly:true});
       var work_city = distributed_sheet.getRange(frow+1, i+1).getValues();
       //Logger.log(work_city);
@@ -356,16 +362,16 @@ function create_working_sheet(){
         colnum++
       }
     }
-    else if(first_row[0][i].toLowerCase() === "facebook email")
+    else if(first_row[0][i].toString().toLowerCase() === "facebook email")
       working_sheet.getRange(1, colnum+16,1,1).setValue('Facebook Email').setFontFamily("Calibri").setFontWeight("bold").setFontSize(14).setBackground("#c9daf8");
     
-    else if(first_row[0][i].toLowerCase() === "first name"){
+    else if(first_row[0][i].toString().toLowerCase() === "first name"){
       var fncl_id = 65 + i;  
     }
-    else if(first_row[0][i].toLowerCase() === "last name"){
+    else if(first_row[0][i].toString().toLowerCase() === "last name"){
       var lncl_id = 65 + i; 
     }
-    else if(first_row[0][i].toLowerCase() === "linkedin profile"){
+    else if(first_row[0][i].toString().toLowerCase().indexOf("linkedin profile") !== -1){
       var lkcl_id_number = 65 + i;
       lpchecker = true;
       if(lkcl_id_number>90){
@@ -390,9 +396,9 @@ function create_working_sheet(){
         var formula = '=HYPERLINK(,CONCATENATE('+distributed_sheet.getName()+'!'+String.fromCharCode(fncl_id)+j+'," ",'+distributed_sheet.getName()+'!'+String.fromCharCode(lncl_id)+j+'))';
         working_sheet.getRange("C"+j).setFormula(formula);
         
+      }
+      Browser.msgBox('Không tìm thấy cột Linkedin Profile ở sheet gốc! Nhấn OK để tiếp tục.');
     }
-    Browser.msgBox('Không tìm thấy cột Linkedin Profile ở sheet gốc! Nhấn OK để tiếp tục.');
-  }
   }
   var ws_rlen = working_sheet.getLastRow();
   
@@ -401,7 +407,7 @@ function create_working_sheet(){
   working_sheet.getRange('C1').setValue('Full Name/Link').setFontFamily("Calibri").setFontWeight("bold").setFontSize(14).setBackground("#c9daf8");
   working_sheet.getRange('D1').setFontFamily("Calibri").setFontWeight("bold").setFontSize(14).setBackground("#c9daf8");
   working_sheet.getRange('E1').setFontFamily("Calibri").setFontWeight("bold").setFontSize(14).setBackground("#c9daf8");
-  if((working_sheet.getRange('F2').getValue() !== '' && working_sheet.getRange('F3').getValue() !== '') && (working_sheet.getRange('F2').getValue().toLowerCase() !== 'not found' && working_sheet.getRange('F3').getValue().toLowerCase() !== 'not found')){
+  if((working_sheet.getRange('F2').getValue() !== '' && working_sheet.getRange('F3').getValue() !== '') && (working_sheet.getRange('F2').getValue().toString().toLowerCase() !== 'not found' && working_sheet.getRange('F3').getValue().toString().toLowerCase() !== 'not found')){
     working_sheet.getRange('F1').setValue('Work City/Town.').setFontFamily("Calibri").setFontWeight("bold").setFontSize(14).setBackground("#c9daf8");
   }
   working_sheet.getRange('F1').setFontFamily("Calibri").setFontWeight("bold").setFontSize(14).setBackground("#c9daf8");
