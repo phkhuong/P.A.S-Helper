@@ -62,7 +62,7 @@ Thắc mắc thường gặp:
 + Cách tính Phone number ?
 -> Tất cả các dòng không có cả Mobile, Home và Work phone
 */
-
+//Hàm tự động search số điện thoại công ty bằng google
 function phonenumber(company,city) {
   if(company !== "" && city !== ""){ 
     var company_array = company.replace(/\W+/g, " ").split(" ");
@@ -102,7 +102,7 @@ function phonenumber(company,city) {
     Logger.log(output);*/
   }
 }
-
+//Hàm tạo tab trên menu của google sheet
 function onOpen() {
   var spreadsheet = SpreadsheetApp.getActive();
   var menuItems = [
@@ -113,6 +113,7 @@ function onOpen() {
   spreadsheet.addMenu('PAS Helper', menuItems);
 }
 
+//Hàm hỗ trợ thống kê report cuối ngày
 function report() {
   var activespreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   var activesheet = SpreadsheetApp.getActiveSheet();
@@ -275,7 +276,7 @@ function report() {
   activesheet.getRange(2,anchor+5,3,13).copyTo(activesheet.getRange(6, anchor+1));
 
 }
-
+//Hàm tìm và tô màu các ô bị trùng
 function duplicate_finder(){
   var activespreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   var activesheet = SpreadsheetApp.getActiveSheet();
@@ -313,7 +314,7 @@ function duplicate_finder(){
     }
   }
 }
-
+//Hàm tạo sheet mới theo mẫu làm việc từ dữ liệu của khách hàng
 function create_working_sheet(){
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var distributed_sheet = SpreadsheetApp.getActiveSheet()
